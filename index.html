@@ -1,0 +1,231 @@
+<?php
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Upload with Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-image: url("sign7.png");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000000;
+            background-attachment: fixed;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.415);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin-right: 360px;
+            padding: 20px;
+            height: 320px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 550px;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 100px;
+            border-radius: 10px;
+            border: #fff solid 1px;
+            text-align: center;
+        }
+
+        .custom-upload-btn {
+            background-color: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            position: relative;
+        }
+
+        .custom-upload-btn::before {
+            content: "\f3ee";
+            font-family: 'Font Awesome 5 Free';
+            /*font-weight: 900;*/
+            position: absolute;
+            left: 10px;
+            transform: translateY(-50%);
+        }
+
+        .custom-upload-btn:hover {
+            background-color: #334b84;
+            color: white;
+            border: #fff solid 1px;
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        .btn-primary {
+            background-color: #ffffff;
+            color: #000000;
+            border: #fff solid 1px;
+            width: 200px;
+            margin-left: 156px;
+        }
+
+        .btn-primary:hover {
+            background-color: #334b84;
+            color: white;
+            border: #fff solid 1px;
+        }
+
+        h2 {
+            font-family: "Audiowide", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            color: rgb(39, 33, 33);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h2 class="text-center">SOLAR PANEL FAULT  DETECTION</h2><br>
+                <form id="uploadForm">
+                    <div class="form-group text-center">
+                        <label for="imageInput" class="custom-upload-btn">
+                            <i class="fas fa-mail-bulk" style="margin-right: 5px;"></i>Choose Image
+                        </label>
+                        <input type="file" class="form-control-file" id="imageInput" accept="image/*" />
+                    </div>
+                    <div class="form-group preview-container" style="display:flex;justify-content:center;">
+                        <img id="previewImage" class="preview-image" src="#" alt="" />
+                    </div>
+                    <button type="button" class="btn btn-primary btn-block" onclick="uploadImage()">Upload</button>
+                    <button type="button" class="btn btn-primary btn-block" onclick="redirect()">Suggestion</button>
+                </form>
+                <div id="result"style="padding:10px;font-size:20px;font-weight:bold;letter-spacing:1px;"></div>
+            </div>
+           
+        </div>
+        
+    </div>
+
+    <script>
+        function previewImage(input) {
+            var preview = document.getElementById("previewImage");
+            var container = document.getElementById("container");
+
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    container.style.height = "445px";
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.src = "";
+
+            }
+        }
+
+        document.getElementById("imageInput").addEventListener("change", function () {
+            previewImage(this);
+        });
+
+         function names()
+         {
+            var input = document.getElementById('imageInput');
+            var file = input.files[0];
+            var formData = new FormData();
+            formData.append('image', file);
+            var s="fghj";
+            return new Promise((resolve,reject)=>
+        {
+            fetch('http://localhost:8009/predict', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                   
+                    
+                    resolve(data.class);
+                    
+               
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    reject(error);
+                });
+                
+            });
+         }
+        function uploadImage() {
+            var input = document.getElementById('imageInput');
+            var file = input.files[0];
+            var formData = new FormData();
+            formData.append('image', file);
+            var result= document.getElementById('result');
+            fetch('http://localhost:8009/predict', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Predicted Class: ' + data.class);
+                    result.innerHTML="FAULT : "+data.class;
+                    result.style.textAlign="center";
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        async function redirect()
+        {
+            var name= await names();
+            console.log(name);
+            if(name=="Bird-drop")
+            {
+             
+               
+             window.location.href="submit.html";
+             window.onload=redirect;
+            }
+            else if(name=="Dusty")
+            {
+                window.location.href="dust.html";
+             window.onload=redirect;
+            }
+            else if(name=="Electrical-damage")
+            {
+                window.location.href="electric.html";
+             window.onload=redirect;
+            }
+        }
+    </script>
+
+</body>
+
+</html>
